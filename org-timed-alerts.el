@@ -184,6 +184,12 @@ an alert."
   :type '(list)
   :group 'org-timed-alerts)
 
+(defcustom org-timed-alerts-tag-exclusions '()
+  "If a heading has any of these tags, do not schedule it for
+an alert."
+  :type '(list)
+  :group 'org-timed-alerts)
+
 ;;;; Variables
 
 (defvar org-timed-alerts--timer-list nil
@@ -423,6 +429,9 @@ MESSAGE is the alert body. Optional keys are those accepted by `alert'."
 				 :from ,(ts-format "%Y-%m-%d" (ts-now))
 				 :to ,(ts-format "%Y-%m-%d"
 						 (ts-adjust 'day 1 (ts-now)))))
+                            (not ,@(if org-timed-alerts-tag-exclusions
+                                       `((tags ,@org-timed-alerts-tag-exclusions))
+                                     '(nil)))
 			    (not (todo ,@org-timed-alerts-todo-exclusions)))
 			  :action #'org-timed-alerts--org-ql-action)
 	   do (org-timed-alerts--parser entry))
